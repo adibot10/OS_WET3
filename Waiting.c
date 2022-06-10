@@ -113,7 +113,7 @@ int *popHeadWaiting(WaitingQueue queue) {
     queue->curr_size--;
     int *data = getNodeData(temp);
     free(temp);
-    //printf("WaitingQueue: popping request number %d \n", *data); //**** remove
+    printf("WaitingQueue: popping request number %d \n", *data); //**** remove
     pthread_mutex_unlock(&lock);
     return data;
 }

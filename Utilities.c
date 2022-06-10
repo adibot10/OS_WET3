@@ -13,7 +13,9 @@ Node nodeCreate(int* new_request){
         return NULL;
     }
     printf("NodeCreate: the data is %d \n", *new_request);
-    node->request = new_request;
+
+    node->request = malloc(sizeof(*new_request));
+    memcpy(node->request, new_request, sizeof(*new_request)); // TODO: make deep copy
     node->next = NULL;
     node->prev = NULL;
     return node;
