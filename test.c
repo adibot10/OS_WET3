@@ -9,6 +9,45 @@
 
 #include <unistd.h>
 
+/*
+void fun(int a)
+{
+    printf("Value of a is %d\n", a);
+}*/
+
+/*int main()
+{
+    // fun_ptr is a pointer to function fun()
+    void (*fun_ptr)(int) = &fun;
+
+    *//* The above line is equivalent of following two
+       void (*fun_ptr)(int);
+       fun_ptr = &fun;
+    *//*
+
+    // Invoking fun() using fun_ptr
+    (*fun_ptr)(10);
+
+    return 0;
+}*/
+typedef struct params_t *Params;
+struct params_t {
+    WorkingQueue work;
+    WaitingQueue wait;
+
+};
+
+Params paramsCreate(WorkingQueue work_queue, WaitingQueue waiting_queue) {
+    Params param = malloc(sizeof(struct params_t));
+    if (param == NULL) {
+        return NULL;
+    }
+
+    param->work = work_queue;
+    param->wait = waiting_queue;
+    return param;
+
+}
 
 void *test_thread(void *param) {
     sleep(5);

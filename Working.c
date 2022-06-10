@@ -23,9 +23,9 @@ WorkingQueue workingQueueCreate(int thread_amount) {
     return queue;
 }
 
-
-void workingPush(WorkingQueue queue, rio_t *request) {
-
+// ****
+//void workingPush(WorkingQueue queue, rio_t *request) {
+void workingPush(WorkingQueue queue, int *request) {
     pthread_mutex_lock(&lock);
     if (queue == NULL) {
         pthread_mutex_unlock(&lock);
@@ -62,15 +62,17 @@ void workingPush(WorkingQueue queue, rio_t *request) {
 
 }
 
-
-rio_t *workingSeeHead(WorkingQueue queue) {
+// ****
+//rio_t *workingSeeHead(WorkingQueue queue)
+int *workingSeeHead(WorkingQueue queue) {
     if (!queue) {
         return NULL;
     }
     return getNodeData(queue->head);
 }
-
-rio_t *workingPopHead(WorkingQueue queue) {
+// ****
+//rio_t *workingPopHead(WorkingQueue queue)
+int *workingPopHead(WorkingQueue queue) {
     pthread_mutex_lock(&lock);
     if (!queue) {
         pthread_mutex_unlock(&lock);
@@ -113,7 +115,8 @@ rio_t *workingPopHead(WorkingQueue queue) {
     }
 
     queue->curr_size--;
-    rio_t *data = getNodeData(request_node);
+    int *data = getNodeData(request_node);
+    //printf("WorkingQueue: taken care of request number %d \n", *(request_node->request)); //**** remove
     info->request_node = NULL;
     free(request_node);
     total_handled--;

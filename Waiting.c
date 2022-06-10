@@ -80,8 +80,9 @@ void pushWaiting(WaitingQueue queue, int *request) {
     return;
 }
 
-
-rio_t *seeHeadWaiting(WaitingQueue queue) {
+//! **** need to change
+//rio_t *seeHeadWaiting(WaitingQueue queue)
+int *seeHeadWaiting(WaitingQueue queue) {
     if (!queue) {
         return NULL;
     }
@@ -110,12 +111,11 @@ int *popHeadWaiting(WaitingQueue queue) {
         (queue->head)->next = NULL;
     }
     queue->curr_size--;
-    rio_t *data = getNodeData(temp);
+    int *data = getNodeData(temp);
     free(temp);
     //printf("WaitingQueue: popping request number %d \n", *data); //**** remove
     pthread_mutex_unlock(&lock);
     return data;
-
 }
 
 int getCurrSizeWaiting(WaitingQueue queue) {
