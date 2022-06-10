@@ -53,7 +53,7 @@ void *test_thread(void *param) {
     sleep(5);
     Params params = (Params) param;
     addThreadInfo(pthread_self());
-    int *request;
+    int request;
 
     while (1) {
         request = popHeadWaiting(params->wait);
@@ -95,11 +95,11 @@ int main() {
         req_arr[i] = i;
     }
     for (int i = 0; i < arr_size; i++) {
-        pushWaiting(waiting_queue, &i);
+        pushWaiting(waiting_queue, i);
     }
     for(int i = 0; i < arr_size; i++){
-        int* request = popHeadWaiting(waiting_queue);
-        printf("request is : %d \n", *request);
+        int request = popHeadWaiting(waiting_queue);
+        printf("request is : %d \n", request);
     }
     sleep(6);
 

@@ -11,14 +11,14 @@ typedef struct working_queue_t *WorkingQueue;
 WorkingQueue workingQueueCreate(int thread_amount);
 
 
-//! ****  need to changeeee
+
 //void workingPush(WorkingQueue queue, rio_t *request);
 //rio_t* workingSeeHead(WorkingQueue queue);
 //rio_t* workingPopHead(WorkingQueue queue);
 
-void workingPush(WorkingQueue queue, int *request);
-int* workingSeeHead(WorkingQueue queue);
-int* workingPopHead(WorkingQueue queue);
+void workingPush(WorkingQueue queue, int fd);
+int workingSeeHead(WorkingQueue queue);
+int workingPopHead(WorkingQueue queue);
 
 
 int workingGetCurrSize(WorkingQueue queue);

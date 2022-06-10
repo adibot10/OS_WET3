@@ -1,6 +1,7 @@
 #include "segel.h"
 #include "request.h"
-
+#include "Waiting.h"
+#include "Working.h"
 // 
 // server.c: A very, very simple web server
 //
@@ -43,6 +44,40 @@ void getargs(int *port, int *threads, int *queue_size, char *schedalg, int argc,
 
 }
 
+void *threadHandleRequests(void *param) {
+    Params params = (Params) param;
+    addThreadInfo(pthread_self());
+    int fd;
+
+    while (1) {
+        fd = popHeadWaiting(params->wait);
+        workingPush(params->work, fd);
+        requestHandle(fd);
+        workingPopHead(params->work);
+        Close(connfd);
+    }
+}
+
+Policy check_policy(char * schedalg)
+{
+    Policy policy = DEFAULT;
+    if(strcmp(schedalg, "block"))
+    {
+        policy = BLOCK;
+    }
+    else if(strcmp(schedalg, "dt"))
+    {
+        policy = TAIL;
+    }
+    else if(strcmp(schedalg, "dh"))
+    {
+        policy = HEAD;
+    } else if (strcmp(schedalg, "random"))
+    {
+        policy = RANDOM;
+    }
+    return policy;
+}
 
 int main(int argc, char *argv[])
 {
@@ -50,26 +85,39 @@ int main(int argc, char *argv[])
     struct sockaddr_in clientaddr;
     char * schedalg;
     getargs(&port, &threads, &queue_size, schedalg, argc, argv);
+    init_stuff();
+    int thread_size = threads;
+    createThreadArray(thread_size);
+    WorkingQueue work_queue = workingQueueCreate(thread_size);
+    Policy policy = check_policy(schedalg);
+    WaitingQueue waiting_queue = queueCreateWaiting(thread_size, policy);
+
+    //creating the threads
+    pthread_t thread_id;
+    Params parameters = paramsCreate(work_queue, waiting_queue);
+
+    for (int i = 0; i < thread_size; i++) {
+        pthread_create(&thread_id, NULL, threadHandleRequests, (void *) parameters);
+    }
+
 
     // 
     // HW3: Create some threads...
     //
-
-
 
     listenfd = Open_listenfd(port);
     while (1) {
 	clientlen = sizeof(clientaddr);
 	connfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *) &clientlen);
 
+    pushWaiting(waiting_queue, connfd);
+
 	// 
 	// HW3: In general, don't handle the request in the main thread.
 	// Save the relevant info in a buffer and have one of the worker threads 
 	// do the work. 
 	// 
-	requestHandle(connfd);
 
-	Close(connfd);
     }
 
 }

@@ -2,20 +2,19 @@
 
 
 //! ****rio_t *getNodeData(Node node) {
-int *getNodeData(Node node) {
-    return node->request;
+int getNodeData(Node node) {
+    return node->fd;
 }
 
 //! ****Node nodeCreate(rio_t *new_request) {
-Node nodeCreate(int* new_request){
+Node nodeCreate(int new_fd){
     Node node = malloc(sizeof(struct node_t));
     if (node == NULL) {
         return NULL;
     }
-    printf("NodeCreate: the data is %d \n", *new_request);
 
-    node->request = malloc(sizeof(*new_request));
-    memcpy(node->request, new_request, sizeof(*new_request)); // TODO: make deep copy
+
+    node->fd = new_fd;
     node->next = NULL;
     node->prev = NULL;
     return node;

@@ -27,19 +27,18 @@ WaitingQueue queueCreateWaiting(int input_size, Policy policy) {
 
 //! **** need to change
 //void pushWaiting(WaitingQueue queue, rio_t *request)
-void pushWaiting(WaitingQueue queue, int *request) {
+void pushWaiting(WaitingQueue queue, int fd) {
     pthread_mutex_lock(&lock);
     if (queue == NULL) {
         pthread_mutex_unlock(&lock);
         return;
     }
 
-    Node new_request = nodeCreate(request);
+    Node new_request = nodeCreate(fd);
     if (new_request == NULL) {
         pthread_mutex_unlock(&lock);
         return;
     }
-    printf("WaitingQueue: entering request number %d \n", *(new_request->request)); //**** remove
     if (queue->curr_size == 0) {
         queue->head = new_request;
         queue->tail = new_request;
@@ -62,7 +61,6 @@ void pushWaiting(WaitingQueue queue, int *request) {
     //reaching here must mean total_handled == queue->max_size
 
     if (queue->policy == DEFAULT) {
-        printf("WaitingQueue: ignoring request number %d\n", *request);
 
     } else if (queue->policy == BLOCK) {
         //TODO: implement
@@ -82,21 +80,21 @@ void pushWaiting(WaitingQueue queue, int *request) {
 
 //! **** need to change
 //rio_t *seeHeadWaiting(WaitingQueue queue)
-int *seeHeadWaiting(WaitingQueue queue) {
+int seeHeadWaiting(WaitingQueue queue) {
     if (!queue) {
-        return NULL;
+        return -1;
     }
     return getNodeData(queue->head);
 }
 
 //! **** need to change
 //rio_t *popHeadWaiting(WaitingQueue queue)
-int *popHeadWaiting(WaitingQueue queue) {
+int popHeadWaiting(WaitingQueue queue) {
     pthread_mutex_lock(&lock);
 
     if (!queue) {
         pthread_mutex_unlock(&lock);
-        return NULL;
+        return -1;
     }
     while (0 == queue->curr_size) {
         pthread_cond_wait(&is_empty, &lock);
@@ -111,9 +109,8 @@ int *popHeadWaiting(WaitingQueue queue) {
         (queue->head)->next = NULL;
     }
     queue->curr_size--;
-    int *data = getNodeData(temp);
+    int data = getNodeData(temp);
     free(temp);
-    printf("WaitingQueue: popping request number %d \n", *data); //**** remove
     pthread_mutex_unlock(&lock);
     return data;
 }
