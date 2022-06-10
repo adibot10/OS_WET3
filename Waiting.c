@@ -2,7 +2,6 @@
 
 
 struct waiting_queue_t {
-
     Node head;
     Node tail;
     int curr_size;
@@ -26,58 +25,59 @@ WaitingQueue queueCreateWaiting(int input_size, Policy policy) {
     return queue;
 }
 
-
-void pushWaiting(WaitingQueue queue, rio_t *request) {
+//! **** need to change
+//void pushWaiting(WaitingQueue queue, rio_t *request)
+void pushWaiting(WaitingQueue queue, int *request) {
+    pthread_mutex_lock(&lock);
     if (queue == NULL) {
+        pthread_mutex_unlock(&lock);
         return;
     }
 
+    Node new_request = nodeCreate(request);
+    if (new_request == NULL) {
+        pthread_mutex_unlock(&lock);
+        return;
+    }
+    printf("WaitingQueue: entering request number %d \n", *(new_request->request)); //**** remove
     if (queue->curr_size == 0) {
-        Node first = nodeCreate(request);
-        if (first == NULL) {
-            return;
-        }
-        queue->head = first;
-        queue->tail = first;
+        queue->head = new_request;
+        queue->tail = new_request;
         queue->curr_size++;
-
+        total_handled++;
+        pthread_cond_signal(&is_empty);
+        pthread_mutex_unlock(&lock);
         return;
     }
 
-    if (queue->curr_size < queue->max_size) {
+    if (total_handled < queue->max_size) {
         //creating the node to insert to the end
-        Node first = nodeCreate(request);
-        if (first == NULL) {
-            return;
-        }
-        first->next = queue->tail;
-        (queue->tail)->prev = first;
-        queue->tail = first;
+        new_request->next = queue->tail;
+        (queue->tail)->prev = new_request;
+        queue->tail = new_request;
         queue->curr_size++;
+        pthread_mutex_unlock(&lock);
         return;
     }
-    //reaching here must mean queue->curr_size == queue->max_size
+    //reaching here must mean total_handled == queue->max_size
 
     if (queue->policy == DEFAULT) {
-        return;
-    }
+        printf("WaitingQueue: ignoring request number %d\n", *request);
 
-    if (queue->policy == BLOCK) {
+    } else if (queue->policy == BLOCK) {
         //TODO: implement
-        return;
-    }
-    if (queue->policy == TAIL) {
+
+    } else if (queue->policy == TAIL) {
         //TODO: implement
-        return;
-    }
-    if (queue->policy == RANDOM) {
+
+    } else if (queue->policy == RANDOM) {
         //TODO: implement
-        return;
-    }
-    if (queue->policy == HEAD) {
+
+    } else if(queue->policy == HEAD){
         //TODO: implement
-        return;
     }
+    pthread_mutex_unlock(&lock);
+    return;
 }
 
 
@@ -88,19 +88,23 @@ rio_t *seeHeadWaiting(WaitingQueue queue) {
     return getNodeData(queue->head);
 }
 
-rio_t *popHeadWaiting(WaitingQueue queue) {
-    if (!queue) {
-        return NULL;
-    }
+//! **** need to change
+//rio_t *popHeadWaiting(WaitingQueue queue)
+int *popHeadWaiting(WaitingQueue queue) {
+    pthread_mutex_lock(&lock);
 
-    if (queue->curr_size == 0) {
-        //something with threads
+    if (!queue) {
+        pthread_mutex_unlock(&lock);
         return NULL;
     }
+    while (0 == queue->curr_size) {
+        pthread_cond_wait(&is_empty, &lock);
+        }
     Node temp = queue->head;
 
-    if (queue->curr_size == 1) {
+    if (1 == queue->curr_size) {
         queue->head = queue->tail = NULL;
+
     } else {
         queue->head = (queue->head)->prev;
         (queue->head)->next = NULL;
@@ -108,7 +112,8 @@ rio_t *popHeadWaiting(WaitingQueue queue) {
     queue->curr_size--;
     rio_t *data = getNodeData(temp);
     free(temp);
-
+    //printf("WaitingQueue: popping request number %d \n", *data); //**** remove
+    pthread_mutex_unlock(&lock);
     return data;
 
 }

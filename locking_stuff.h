@@ -3,9 +3,10 @@
 #include "segel.h"
 
 pthread_mutex_t lock;
-pthread_cond_t empty;
-pthread_cond_t full;
+pthread_cond_t is_empty;
+int total_handled;
 
+int init_stuff();
 
 
 

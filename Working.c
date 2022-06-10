@@ -55,6 +55,7 @@ void workingPush(WorkingQueue queue, rio_t *request) {
         queue->tail = new_request;
         queue->curr_size++;
     }
+    //printf("WorkingQueue: pushing request number %d \n", *request); //**** remove
     pthread_mutex_unlock(&lock);
 
     //reaching here must mean queue->curr_size == queue->thread_size
@@ -89,6 +90,7 @@ rio_t *workingPopHead(WorkingQueue queue) {
     pthread_t thread_id = pthread_self();
     ThreadInfo info = findRequestNode(thread_id);
     Node request_node = info->request_node;
+    printf("PopHeadWorking: check request from node %d \n", *(request_node->request));
 
     if(request_node->prev == NULL){
         //This is the tail
@@ -114,6 +116,8 @@ rio_t *workingPopHead(WorkingQueue queue) {
     rio_t *data = getNodeData(request_node);
     info->request_node = NULL;
     free(request_node);
+    total_handled--;
+
     pthread_mutex_unlock(&lock);
     return data;
 

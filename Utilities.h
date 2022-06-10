@@ -6,14 +6,17 @@
 
 typedef struct node_t *Node;
 struct node_t {
-    rio_t *request; //data
+    //! ****rio_t *request; //data
+    int* request; //! change back
     struct node_t *next;
     struct node_t *prev;
     //TODO: when doing statistics, find out how to get id of thread inside Node
 };
 
-Node nodeCreate(rio_t *new_request);
-rio_t *getNodeData(Node node);
+//! ****Node nodeCreate(rio_t *new_request);
+Node nodeCreate(int* new_request); //!change back
+//! ****rio_t *getNodeData(Node node);
+int* getNodeData(Node node); //! change back
 
 
 typedef struct thread_info_t *ThreadInfo;

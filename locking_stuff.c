@@ -1,10 +1,16 @@
 #include "locking_stuff.h"
 
 
-int total_handled = 0;
 
 int init_stuff() {
+    // TODO: need to call at beginning of run
     int mut_init = pthread_mutex_init(&lock, NULL);
-    int empty_init = pthread_cond_init(&empty, NULL);
-    int full_init = pthread_cond_init(&full, NULL);
+    if(mut_init != 0)
+    {
+        return -1;
+    }
+    pthread_cond_init(&is_empty, NULL); //always success
+    total_handled = 0;
+    return 0;
+
 }
