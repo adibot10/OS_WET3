@@ -10,6 +10,7 @@ int init_stuff() {
         return -1;
     }
     pthread_cond_init(&is_empty, NULL); //always success
+    pthread_cond_init(&is_full, NULL); //always success
     total_handled = 0;
     return 0;
 

@@ -60,20 +60,6 @@ void pushWaiting(WaitingQueue queue, int fd) {
     }
     //reaching here must mean total_handled == queue->max_size
 
-    if (queue->policy == DEFAULT) {
-
-    } else if (queue->policy == BLOCK) {
-        //TODO: implement
-
-    } else if (queue->policy == TAIL) {
-        //TODO: implement
-
-    } else if (queue->policy == RANDOM) {
-        //TODO: implement
-
-    } else if(queue->policy == HEAD){
-        //TODO: implement
-    }
     pthread_mutex_unlock(&lock);
     return;
 }
@@ -87,18 +73,17 @@ int seeHeadWaiting(WaitingQueue queue) {
     return getNodeData(queue->head);
 }
 
-//! **** need to change
-//rio_t *popHeadWaiting(WaitingQueue queue)
-int popHeadWaiting(WaitingQueue queue) {
-    pthread_mutex_lock(&lock);
-
+int popHeadWaiting(WaitingQueue queue, bool is_main_thread) {
+    if(!is_main_thread) {
+        pthread_mutex_lock(&lock);
+    }
     if (!queue) {
         pthread_mutex_unlock(&lock);
         return -1;
     }
     while (0 == queue->curr_size) {
         pthread_cond_wait(&is_empty, &lock);
-        }
+    }
     Node temp = queue->head;
 
     if (1 == queue->curr_size) {
@@ -111,6 +96,7 @@ int popHeadWaiting(WaitingQueue queue) {
     queue->curr_size--;
     int data = getNodeData(temp);
     free(temp);
+    pthread_cond_signal(&is_full);
     pthread_mutex_unlock(&lock);
     return data;
 }
@@ -122,3 +108,33 @@ int getCurrSizeWaiting(WaitingQueue queue) {
 int getMaxSizeWaiting(WaitingQueue queue) {
     return queue->max_size;
 }
+
+int popIndexWaiting(WaitingQueue waiting_queue,int queue_index){
+    Node temp = waiting_queue->tail;
+
+    while(queue_index > 0){
+        temp = temp->next;
+        queue_index--;
+    }
+    int fd = temp->fd;
+
+    if(temp == waiting_queue->tail){
+        waiting_queue->tail = temp->next;
+        if(temp->next) {
+            (temp->next)->prev = NULL;
+        }
+    }
+    else if(temp == waiting_queue->head){
+        waiting_queue->head = temp->prev;
+        if(temp->prev){
+            (temp->prev)->next = NULL;
+        }
+    }
+    else {
+        (temp->next)->prev = temp->prev;
+        (temp->prev)->next = temp->next;
+    }
+    free(temp);
+    return fd;
+}
+

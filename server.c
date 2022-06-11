@@ -1,129 +1,1 @@
-#include "segel.h"
-#include "request.h"
-#include "Waiting.h"
-#include "Working.h"
-// 
-// server.c: A very, very simple web server
-//
-// To run:
-//  ./server <portnum (above 2000)>
-//
-// Repeatedly handles HTTP requests sent to this port number.
-// Most of the work is done within routines written in request.c
-//
-
-// HW3: Parse the new arguments too
-//number of args greater or equal to 2,
-//takes the second argument and saves it in port
-void getargs(int *port, int *threads, int *queue_size, char *schedalg, int argc, char *argv[])
-{
-    if (argc < 5) {
-	fprintf(stderr, "Usage: %s <port> <threads> <queue_size> <schedalg>\n", argv[0]);
-	exit(1);
-    }
-    *port = atoi(argv[1]);
-    *threads = atoi(argv[2]);
-    *queue_size = atoi(argv[3]);
-    schedalg = (char *) malloc(sizeof(char) * (strlen(argv[4]) + 1));
-    strcpy(schedalg, argv[4]);
-    if(*threads <= 0)
-    {
-        fprintf(stderr, "Number of threads must be a positive number\n");
-        exit(1);
-    }
-    if(*queue_size <= 0)
-    {
-        fprintf(stderr, "Queue size must be a positive number\n");
-        exit(1);
-    }
-    if(strcmp(schedalg, "block") != 0 && strcmp(schedalg, "dt") != 0 && strcmp(schedalg, "dh") != 0 && strcmp(schedalg, "random") != 0)
-    {
-        fprintf(stderr, "Invalid Schedalg\n");
-        exit(1);
-    }
-
-}
-
-void *threadHandleRequests(void *param) {
-    Params params = (Params) param;
-    addThreadInfo(pthread_self());
-    int fd;
-
-    while (1) {
-        fd = popHeadWaiting(params->wait);
-        workingPush(params->work, fd);
-        requestHandle(fd);
-        workingPopHead(params->work);
-        Close(connfd);
-    }
-}
-
-Policy check_policy(char * schedalg)
-{
-    Policy policy = DEFAULT;
-    if(strcmp(schedalg, "block"))
-    {
-        policy = BLOCK;
-    }
-    else if(strcmp(schedalg, "dt"))
-    {
-        policy = TAIL;
-    }
-    else if(strcmp(schedalg, "dh"))
-    {
-        policy = HEAD;
-    } else if (strcmp(schedalg, "random"))
-    {
-        policy = RANDOM;
-    }
-    return policy;
-}
-
-int main(int argc, char *argv[])
-{
-    int listenfd, connfd, port, clientlen, threads, queue_size;
-    struct sockaddr_in clientaddr;
-    char * schedalg;
-    getargs(&port, &threads, &queue_size, schedalg, argc, argv);
-    init_stuff();
-    int thread_size = threads;
-    createThreadArray(thread_size);
-    WorkingQueue work_queue = workingQueueCreate(thread_size);
-    Policy policy = check_policy(schedalg);
-    WaitingQueue waiting_queue = queueCreateWaiting(thread_size, policy);
-
-    //creating the threads
-    pthread_t thread_id;
-    Params parameters = paramsCreate(work_queue, waiting_queue);
-
-    for (int i = 0; i < thread_size; i++) {
-        pthread_create(&thread_id, NULL, threadHandleRequests, (void *) parameters);
-    }
-
-
-    // 
-    // HW3: Create some threads...
-    //
-
-    listenfd = Open_listenfd(port);
-    while (1) {
-	clientlen = sizeof(clientaddr);
-	connfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *) &clientlen);
-
-    pushWaiting(waiting_queue, connfd);
-
-	// 
-	// HW3: In general, don't handle the request in the main thread.
-	// Save the relevant info in a buffer and have one of the worker threads 
-	// do the work. 
-	// 
-
-    }
-
-}
-
-
-    
-
-
- 
+#include "segel.h"#include "request.h"#include "Waiting.h"#include "Working.h"#define POPPING_PERCENT 30// // server.c: A very, very simple web server//// To run://  ./server <portnum (above 2000)>//// Repeatedly handles HTTP requests sent to this port number.// Most of the work is done within routines written in request.c//// HW3: Parse the new arguments too//number of args greater or equal to 2,//takes the second argument and saves it in porttypedef struct params_t *Params;struct params_t {    WorkingQueue work;    WaitingQueue wait;};Params paramsCreate(WorkingQueue work_queue, WaitingQueue waiting_queue) {    Params param = malloc(sizeof(struct params_t));    if (param == NULL) {        return NULL;    }    param->work = work_queue;    param->wait = waiting_queue;    return param;}void getargs(int *port, int *threads, int *queue_size, char *schedalg, int argc, char *argv[]) {    if (argc < 5) {        fprintf(stderr, "Usage: %s <port> <threads> <queue_size> <schedalg>\n", argv[0]);        exit(1);    }    *port = atoi(argv[1]);    *threads = atoi(argv[2]);    *queue_size = atoi(argv[3]);    schedalg = (char *) malloc(sizeof(char) * (strlen(argv[4]) + 1));    strcpy(schedalg, argv[4]);    if (*threads <= 0) {        fprintf(stderr, "Number of threads must be a positive number\n");        exit(1);    }    if (*queue_size <= 0) {        fprintf(stderr, "Queue size must be a positive number\n");        exit(1);    }    if (strcmp(schedalg, "block") != 0 && strcmp(schedalg, "dt") != 0 && strcmp(schedalg, "dh") != 0 &&        strcmp(schedalg, "random") != 0) {        fprintf(stderr, "Invalid Schedalg\n");        exit(1);    }}void *threadHandleRequests(void *param) {    Params params = (Params) param;    addThreadInfo(pthread_self());    int fd;    while (1) {        fd = popHeadWaiting(params->wait, false);        workingPush(params->work, fd);        requestHandle(fd);        workingPopHead(params->work);        Close(fd);    }}Policy check_policy(char *schedalg) {    Policy policy = DEFAULT;    if (strcmp(schedalg, "block")) {        policy = BLOCK;    } else if (strcmp(schedalg, "dt")) {        policy = TAIL;    } else if (strcmp(schedalg, "dh")) {        policy = HEAD;    } else if (strcmp(schedalg, "random")) {        policy = RANDOM;    }    return policy;}void popRandom(WaitingQueue waiting_queue){    int fd, queue_index, curr_queue_size = getCurrSizeWaiting(waiting_queue);    int max_queue_size = getMaxSizeWaiting(waiting_queue);    int delete_amount = max_queue_size * (POPPING_PERCENT / 100);    //assuming 0 is tail of queue, size - 1 is head of queue    for(int i = 0; i < delete_amount && curr_queue_size > 0; i++){        queue_index = rand() % curr_queue_size;        fd = popIndexWaiting(waiting_queue, queue_index);        curr_queue_size--;        Close(fd);    }}int main(int argc, char *argv[]) {    int listenfd, connfd, port, clientlen, threads_amount, queue_size;    struct sockaddr_in clientaddr;    char *schedalg;    getargs(&port, &threads_amount, &queue_size, schedalg, argc, argv);    init_stuff();    int thread_size = threads_amount;    createThreadArray(thread_size);    WorkingQueue work_queue = workingQueueCreate(thread_size);    Policy policy = check_policy(schedalg);    WaitingQueue waiting_queue = queueCreateWaiting(thread_size, policy);    srand((unsigned) time(0)); //initialize random number generator    //creating the threads    pthread_t thread_id;    Params parameters = paramsCreate(work_queue, waiting_queue);    for (int i = 0; i < thread_size; i++) {        pthread_create(&thread_id, NULL, threadHandleRequests, (void *) parameters);    }    listenfd = Open_listenfd(port);    while (1) {        clientlen = sizeof(clientaddr);        /** not sure if using locks here is starvation or busy waiting, need to check         on the other hand, if I don't use locks I won't be able to check the global variable         without fear of context switch*/        pthread_mutex_lock(&lock);        if (total_handled < queue_size) {            connfd = Accept(listenfd, (SA *) &clientaddr, (socklen_t * ) & clientlen);            goto push_and_unlock;        }        //reaching here means that total_handled == queue_size        while (policy == BLOCK) {            //wait until a request is done, need while because of condition variable            pthread_cond_wait(&is_full, &lock);        }        // *At this point either the block finished and there is room for request        // *or we accept the request because it's another policy        connfd = Accept(listenfd, (SA *) &clientaddr, (socklen_t * ) & clientlen);        switch (policy) {            //Sorry Adi, couldn't stop myself            case TAIL:                Close(connfd);                pthread_mutex_unlock(&lock);                continue;            case RANDOM:                if(0 == getCurrSizeWaiting(waiting_queue)){                    Close(connfd);                    pthread_mutex_unlock(&lock);                    continue;                }                popRandom(waiting_queue);                break;            case HEAD:                if(0 == getCurrSizeWaiting(waiting_queue)){                    Close(connfd);                    pthread_mutex_unlock(&lock);                    continue;                }                popHeadWaiting(waiting_queue, true);                break;            default:                //DEFAULT only, BLOCK already handled                continue;        }        push_and_unlock:        pushWaiting(waiting_queue, connfd);        pthread_mutex_unlock(&lock);    }}     

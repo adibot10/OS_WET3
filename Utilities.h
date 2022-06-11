@@ -2,6 +2,8 @@
 #define OS_WET3_NODE_H
 #include "segel.h"
 #include "locking_stuff.h"
+#include "stdbool.h"
+#include <time.h>
 
 
 typedef struct node_t *Node;

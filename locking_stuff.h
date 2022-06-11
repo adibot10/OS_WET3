@@ -4,6 +4,7 @@
 
 pthread_mutex_t lock;
 pthread_cond_t is_empty;
+pthread_cond_t is_full;
 int total_handled;
 
 int init_stuff();
