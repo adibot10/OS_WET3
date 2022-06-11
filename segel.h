@@ -31,6 +31,11 @@
 #define DEF_UMASK  S_IWGRP|S_IWOTH
 /* $end createmasks */
 
+typedef struct {
+    int connfd;
+    struct timeval arrival_time;
+} req;
+
 /* Simplifies calls to bind(), connect(), and accept() */
 /* $begin sockaddrdef */
 typedef struct sockaddr SA;

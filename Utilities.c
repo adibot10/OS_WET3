@@ -2,19 +2,19 @@
 
 
 //! ****rio_t *getNodeData(Node node) {
-int getNodeData(Node node) {
-    return node->fd;
+req getNodeData(Node node) {
+    return node->r;
 }
 
 //! ****Node nodeCreate(rio_t *new_request) {
-Node nodeCreate(int new_fd){
+Node nodeCreate(req r){
     Node node = malloc(sizeof(struct node_t));
     if (node == NULL) {
         return NULL;
     }
 
 
-    node->fd = new_fd;
+    node->r = r;
     node->next = NULL;
     node->prev = NULL;
     return node;
@@ -30,26 +30,28 @@ int createThreadArray(int thread_amount) {
     return 1;
 }
 
-void addThreadInfo(pthread_t thread_id) {
+int addThreadInfo(pthread_t thread_id) {
     // * the point of this is that the master thread will have to call this function after creating every thread
     pthread_mutex_lock(&lock);
     static int index = 0;
     if (index == arr_size) {
         // * meaning we already initialized all the elements in the array
-        return;
+        return -1;
     }
     ThreadInfo info = malloc(sizeof(struct thread_info_t));
 
     if(!info){
         //! not good
         pthread_mutex_unlock(&lock);
-        return;
+        return -1;
     }
     info->thread_id = thread_id;
     info->request_node = NULL;
     thread_arr[index] = info;
+    int id = index;
     index++;
     pthread_mutex_unlock(&lock);
+    return id;
 
 }
 

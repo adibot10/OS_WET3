@@ -8,17 +8,15 @@
 
 typedef struct node_t *Node;
 struct node_t {
-
-    int fd;
+    req r;
     struct node_t *next;
     struct node_t *prev;
-    //TODO: when doing statistics, find out how to get id of thread inside Node
 };
 
 
-Node nodeCreate(int new_fd);
+Node nodeCreate(req r);
 
-int getNodeData(Node node);
+req getNodeData(Node node);
 
 
 typedef struct thread_info_t *ThreadInfo;
@@ -30,7 +28,7 @@ struct thread_info_t{
 ThreadInfo* thread_arr;
 int arr_size;
 int createThreadArray(int thread_amount);
-void addThreadInfo(pthread_t thread_id);
+int addThreadInfo(pthread_t thread_id);
 ThreadInfo findRequestNode(pthread_t thread_id);
 
 #endif //OS_WET3_NODE_H

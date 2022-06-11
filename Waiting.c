@@ -27,16 +27,14 @@ WaitingQueue queueCreateWaiting(int input_size, Policy policy) {
 
 //! **** need to change
 //void pushWaiting(WaitingQueue queue, rio_t *request)
-void pushWaiting(WaitingQueue queue, int fd) {
-    pthread_mutex_lock(&lock);
+void pushWaiting(WaitingQueue queue, req r) {
+
     if (queue == NULL) {
-        pthread_mutex_unlock(&lock);
         return;
     }
 
-    Node new_request = nodeCreate(fd);
+    Node new_request = nodeCreate(r);
     if (new_request == NULL) {
-        pthread_mutex_unlock(&lock);
         return;
     }
     if (queue->curr_size == 0) {
@@ -45,7 +43,6 @@ void pushWaiting(WaitingQueue queue, int fd) {
         queue->curr_size++;
         total_handled++;
         pthread_cond_signal(&is_empty);
-        pthread_mutex_unlock(&lock);
         return;
     }
 
@@ -55,31 +52,33 @@ void pushWaiting(WaitingQueue queue, int fd) {
         (queue->tail)->prev = new_request;
         queue->tail = new_request;
         queue->curr_size++;
-        pthread_mutex_unlock(&lock);
         return;
     }
     //reaching here must mean total_handled == queue->max_size
 
-    pthread_mutex_unlock(&lock);
     return;
 }
 
 //! **** need to change
 //rio_t *seeHeadWaiting(WaitingQueue queue)
-int seeHeadWaiting(WaitingQueue queue) {
+req seeHeadWaiting(WaitingQueue queue) {
+    req r;
+    r.connfd = -1;
     if (!queue) {
-        return -1;
+        return r;
     }
     return getNodeData(queue->head);
 }
 
-int popHeadWaiting(WaitingQueue queue, bool is_main_thread) {
+req popHeadWaiting(WaitingQueue queue, bool is_main_thread) {
+    req r;
+    r.connfd = -1;
     if(!is_main_thread) {
         pthread_mutex_lock(&lock);
     }
     if (!queue) {
         pthread_mutex_unlock(&lock);
-        return -1;
+        return r;
     }
     while (0 == queue->curr_size) {
         pthread_cond_wait(&is_empty, &lock);
@@ -94,7 +93,7 @@ int popHeadWaiting(WaitingQueue queue, bool is_main_thread) {
         (queue->head)->next = NULL;
     }
     queue->curr_size--;
-    int data = getNodeData(temp);
+    req data = getNodeData(temp);
     free(temp);
     pthread_cond_signal(&is_full);
     pthread_mutex_unlock(&lock);
@@ -109,14 +108,15 @@ int getMaxSizeWaiting(WaitingQueue queue) {
     return queue->max_size;
 }
 
-int popIndexWaiting(WaitingQueue waiting_queue,int queue_index){
+
+req popIndexWaiting(WaitingQueue waiting_queue,int queue_index){
     Node temp = waiting_queue->tail;
 
     while(queue_index > 0){
         temp = temp->next;
         queue_index--;
     }
-    int fd = temp->fd;
+    req r = temp->r;
 
     if(temp == waiting_queue->tail){
         waiting_queue->tail = temp->next;
@@ -135,6 +135,6 @@ int popIndexWaiting(WaitingQueue waiting_queue,int queue_index){
         (temp->prev)->next = temp->next;
     }
     free(temp);
-    return fd;
+    return r;
 }
 

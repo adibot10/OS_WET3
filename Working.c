@@ -25,14 +25,14 @@ WorkingQueue workingQueueCreate(int thread_amount) {
 
 // ****
 //void workingPush(WorkingQueue queue, rio_t *request) {
-void workingPush(WorkingQueue queue, int fd) {
+void workingPush(WorkingQueue queue, req r) {
     pthread_mutex_lock(&lock);
     if (queue == NULL) {
         pthread_mutex_unlock(&lock);
         return;
     }
 
-    Node new_request = nodeCreate(fd);
+    Node new_request = nodeCreate(r);
 
     if (new_request == NULL) {
         pthread_mutex_unlock(&lock);
@@ -64,25 +64,29 @@ void workingPush(WorkingQueue queue, int fd) {
 
 // ****
 //rio_t *workingSeeHead(WorkingQueue queue)
-int workingSeeHead(WorkingQueue queue) {
+req workingSeeHead(WorkingQueue queue) {
+    req r;
+    r.connfd = -1;
     if (!queue) {
-        return -1;
+        return r;
     }
     return getNodeData(queue->head);
 }
 // ****
 //rio_t *workingPopHead(WorkingQueue queue)
-int workingPopHead(WorkingQueue queue) {
+req workingPopHead(WorkingQueue queue) {
+    req r;
+    r.connfd = -1;
     pthread_mutex_lock(&lock);
     if (!queue) {
         pthread_mutex_unlock(&lock);
-        return -1;
+        return r;
     }
 
     if (queue->curr_size == 0) {
         //!not good if made it to here
         pthread_mutex_unlock(&lock);
-        return -1;
+        return r;
     }
 
     if (queue->curr_size == 1) {
@@ -114,10 +118,10 @@ int workingPopHead(WorkingQueue queue) {
     }
 
     queue->curr_size--;
-    int data = getNodeData(request_node);
+    req data = getNodeData(request_node);
     //printf("WorkingQueue: taken care of request number %d \n", *(request_node->request)); //**** remove
     info->request_node = NULL;
-    free(request_node);
+//    free(request_node); //TODO check if nessecary
     total_handled--;
 
     pthread_mutex_unlock(&lock);
