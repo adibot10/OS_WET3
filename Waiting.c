@@ -85,6 +85,9 @@ req popHeadWaiting(WaitingQueue queue, bool is_main_thread) {
         exit(1);
         //return r;
     }
+    //printf("curr_size WaitingQueue: %d and thread id: %d\n", queue->curr_size, (int) pthread_self());
+    fflush(stdout);
+
     while (0 == queue->curr_size) {
         pthread_cond_wait(&is_empty, &lock);
     }
