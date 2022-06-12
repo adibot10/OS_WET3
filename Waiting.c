@@ -11,6 +11,18 @@ struct waiting_queue_t {
 
 };
 
+int sizeOfQueue(WaitingQueue queue)
+{
+    Node ptr = queue->head;
+    int size = 0;
+    while(ptr!=NULL)
+    {
+        ptr = ptr->next;
+        size++;
+    }
+    return size;
+}
+
 
 WaitingQueue queueCreateWaiting(int input_size, Policy policy) {
     //assuming input size is valid
@@ -39,6 +51,9 @@ void pushWaiting(WaitingQueue queue, req r) {
     if (new_request == NULL) {
         return;
     }
+    printf("the Real size of the WaitingQueue is %d and the curr size is %d\n", sizeOfQueue(queue), getCurrSizeWaiting(queue));
+    fflush(stdout);
+
     if (queue->curr_size == 0) {
         queue->head = new_request;
         queue->tail = new_request;
@@ -86,8 +101,10 @@ req popHeadWaiting(WaitingQueue queue, bool is_main_thread) {
         //return r;
     }
     //printf("curr_size WaitingQueue: %d and thread id: %d\n", queue->curr_size, (int) pthread_self());
-    fflush(stdout);
+    //fflush(stdout);
 
+    printf("the Real size of the WaitingQueue is %d and the curr size is %d\n", sizeOfQueue(queue), getCurrSizeWaiting(queue));
+    fflush(stdout);
     while (0 == queue->curr_size) {
         pthread_cond_wait(&is_empty, &lock);
     }
