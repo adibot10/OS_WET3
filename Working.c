@@ -117,7 +117,7 @@ req workingPopHead(WorkingQueue queue) {
         request_node->prev = NULL;
     }
 
-    queue->curr_size--;
+    //queue->curr_size--;
     req data = getNodeData(request_node);
     //printf("WorkingQueue: taken care of request number %d \n", *(request_node->request)); //**** remove
     info->request_node = NULL;
