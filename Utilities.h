@@ -4,6 +4,7 @@
 #include "locking_stuff.h"
 #include "stdbool.h"
 #include <time.h>
+#include <math.h>
 
 
 typedef struct node_t *Node;

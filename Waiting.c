@@ -16,7 +16,8 @@ WaitingQueue queueCreateWaiting(int input_size, Policy policy) {
     //assuming input size is valid
     WaitingQueue queue = malloc(sizeof(struct waiting_queue_t));
     if (queue == NULL) {
-        return NULL;
+        printf("Not good, queueCreateWaiting failed!\n");
+        exit(1);
     }
     queue->head = queue->tail = NULL;
     queue->curr_size = 0;
@@ -30,7 +31,8 @@ WaitingQueue queueCreateWaiting(int input_size, Policy policy) {
 void pushWaiting(WaitingQueue queue, req r) {
 
     if (queue == NULL) {
-        return;
+        printf("Not good, pushWaiting failed!\n");
+        exit(1);
     }
 
     Node new_request = nodeCreate(r);
@@ -59,13 +61,14 @@ void pushWaiting(WaitingQueue queue, req r) {
     return;
 }
 
-//! **** need to change
-//rio_t *seeHeadWaiting(WaitingQueue queue)
+
 req seeHeadWaiting(WaitingQueue queue) {
     req r;
     r.connfd = -1;
     if (!queue) {
-        return r;
+
+        exit(1);
+        //return r;
     }
     return getNodeData(queue->head);
 }
@@ -77,8 +80,10 @@ req popHeadWaiting(WaitingQueue queue, bool is_main_thread) {
         pthread_mutex_lock(&lock);
     }
     if (!queue) {
+        printf("popHeadWaiting: queue bad");
         pthread_mutex_unlock(&lock);
-        return r;
+        exit(1);
+        //return r;
     }
     while (0 == queue->curr_size) {
         pthread_cond_wait(&is_empty, &lock);
