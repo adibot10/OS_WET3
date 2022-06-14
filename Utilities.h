@@ -5,6 +5,7 @@
 #include "stdbool.h"
 #include <time.h>
 #include <math.h>
+#include <stdlib.h>
 
 
 typedef struct node_t *Node;

@@ -13,13 +13,19 @@ struct waiting_queue_t {
 
 int sizeOfQueue(WaitingQueue queue)
 {
-    Node ptr = queue->head;
+    Node ptr = queue->tail;
     int size = 0;
     while(ptr!=NULL)
     {
-        ptr = ptr->next;
         size++;
+        req q = ptr->r;
+        //printf("%d ->", q.connfd);
+        ptr = ptr->next;
+
+        //fflush(stdout);
     }
+    //printf("NULL\n");
+    //fflush(stdout);
     return size;
 }
 
@@ -51,24 +57,33 @@ void pushWaiting(WaitingQueue queue, req r) {
     if (new_request == NULL) {
         return;
     }
-    printf("the Real size of the WaitingQueue is %d and the curr size is %d\n", sizeOfQueue(queue), getCurrSizeWaiting(queue));
-    fflush(stdout);
 
     if (queue->curr_size == 0) {
         queue->head = new_request;
         queue->tail = new_request;
         queue->curr_size++;
         total_handled++;
+        int s = sizeOfQueue(queue);
         pthread_cond_signal(&is_empty);
+/*
+        printf("PUSH:the Real size of the WaitingQueue is %d and the curr size is %d\n", s, getCurrSizeWaiting(queue));
+        fflush(stdout);
+*/
         return;
     }
 
-    if (total_handled < queue->max_size) {
+    if (total_handled < (queue->max_size)) {
         //creating the node to insert to the end
         new_request->next = queue->tail;
         (queue->tail)->prev = new_request;
         queue->tail = new_request;
         queue->curr_size++;
+        int s = sizeOfQueue(queue);
+/*
+        printf("PUSH:the Real size of the WaitingQueue is %d and the curr size is %d\n", s, getCurrSizeWaiting(queue));
+        fflush(stdout);
+*/
+        total_handled++;
         return;
     }
     //reaching here must mean total_handled == queue->max_size
@@ -102,9 +117,6 @@ req popHeadWaiting(WaitingQueue queue, bool is_main_thread) {
     }
     //printf("curr_size WaitingQueue: %d and thread id: %d\n", queue->curr_size, (int) pthread_self());
     //fflush(stdout);
-
-    printf("the Real size of the WaitingQueue is %d and the curr size is %d\n", sizeOfQueue(queue), getCurrSizeWaiting(queue));
-    fflush(stdout);
     while (0 == queue->curr_size) {
         pthread_cond_wait(&is_empty, &lock);
     }
@@ -119,6 +131,11 @@ req popHeadWaiting(WaitingQueue queue, bool is_main_thread) {
     }
     queue->curr_size--;
     req data = getNodeData(temp);
+    int s = sizeOfQueue(queue);
+/*
+    printf("POP:the Real size of the WaitingQueue is %d and the curr size is %d\n", s, getCurrSizeWaiting(queue));
+    fflush(stdout);
+*/
     free(temp);
     pthread_cond_signal(&is_full);
     pthread_mutex_unlock(&lock);

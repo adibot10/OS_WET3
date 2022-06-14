@@ -58,13 +58,17 @@ void workingPush(WorkingQueue queue, req r) {
     pthread_t thread_id = pthread_self();
     ThreadInfo info = findRequestNode(thread_id);
     info->request_node = new_request;
+/*
     printf("PUSH-the Real size of the WorkingQueue is %d and the curr size is %d\n", printWorkingQueue(queue), workingGetCurrSize(queue));
     fflush(stdout);
+*/
     if (queue->curr_size == 0) {
         queue->head = new_request;
         queue->tail = new_request;
 
-    } else {
+    }
+
+    else {
         // curr_size < thread_size
         new_request->next = queue->tail;
         (queue->tail)->prev = new_request;
@@ -72,8 +76,10 @@ void workingPush(WorkingQueue queue, req r) {
 
     }
     queue->curr_size++;
-    printf("WorkingQueue: pushing request number\n"); //**** remove
+/*
+    printf("WorkingQueue: pushing request number %d\n", r.connfd); //**** remove
     fflush(stdout);
+*/
     pthread_mutex_unlock(&lock);
 
     //reaching here must mean queue->curr_size == queue->thread_size
@@ -105,10 +111,12 @@ req workingPopHead(WorkingQueue queue) {
         pthread_mutex_unlock(&lock);
         return r;
     }
+/*
     printf("curr size in work so far WorkingQueue: %d\n", queue->curr_size);
     fflush(stdout);
-
-    printf("POP-the Real size of the WorkingQueue is %d and the curr size is %d\n", printWorkingQueue(queue), workingGetCurrSize(queue));
+*/
+    int s = printWorkingQueue(queue);
+    printf("POP-the Real size of the WorkingQueue is %d and the curr size is %d\n", s, queue->curr_size);
     fflush(stdout);
     if (queue->curr_size == 0) {
         printf("not good, size is 0 when popping WorkQueue\n");

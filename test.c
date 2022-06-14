@@ -95,7 +95,7 @@ int main() {
         req_arr[i] = i;
     }
     for (int i = 0; i < arr_size; i++) {
-        pushWaiting(waiting_queue, i);
+        //pushWaiting(waiting_queue, i);
     }
     for(int i = 0; i < arr_size; i++){
         int request = popHeadWaiting(waiting_queue);
