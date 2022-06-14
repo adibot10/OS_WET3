@@ -35,6 +35,7 @@ WaitingQueue queueCreateWaiting(int input_size, Policy policy) {
     WaitingQueue queue = malloc(sizeof(struct waiting_queue_t));
     if (queue == NULL) {
         printf("Not good, queueCreateWaiting failed!\n");
+        fflush(stdout);
         exit(1);
     }
     queue->head = queue->tail = NULL;
@@ -44,12 +45,11 @@ WaitingQueue queueCreateWaiting(int input_size, Policy policy) {
     return queue;
 }
 
-//! **** need to change
-//void pushWaiting(WaitingQueue queue, rio_t *request)
 void pushWaiting(WaitingQueue queue, req r) {
 
     if (queue == NULL) {
         printf("Not good, pushWaiting failed!\n");
+        fflush(stdout);
         exit(1);
     }
 
@@ -58,6 +58,7 @@ void pushWaiting(WaitingQueue queue, req r) {
         return;
     }
 
+    pthread_mutex_lock(&lock);
     if (queue->curr_size == 0) {
         queue->head = new_request;
         queue->tail = new_request;
@@ -65,29 +66,26 @@ void pushWaiting(WaitingQueue queue, req r) {
         total_handled++;
         int s = sizeOfQueue(queue);
         pthread_cond_signal(&is_empty);
-/*
+        pthread_mutex_unlock(&lock);
+        /*
         printf("PUSH:the Real size of the WaitingQueue is %d and the curr size is %d\n", s, getCurrSizeWaiting(queue));
         fflush(stdout);
 */
         return;
     }
 
-    if (total_handled < (queue->max_size)) {
-        //creating the node to insert to the end
-        new_request->next = queue->tail;
-        (queue->tail)->prev = new_request;
-        queue->tail = new_request;
-        queue->curr_size++;
-        int s = sizeOfQueue(queue);
+    //creating the node to insert to the end
+    new_request->next = queue->tail;
+    (queue->tail)->prev = new_request;
+    queue->tail = new_request;
+    queue->curr_size++;
+    int s = sizeOfQueue(queue);
 /*
-        printf("PUSH:the Real size of the WaitingQueue is %d and the curr size is %d\n", s, getCurrSizeWaiting(queue));
-        fflush(stdout);
+    printf("PUSH:the Real size of the WaitingQueue is %d and the curr size is %d\n", s, getCurrSizeWaiting(queue));
+    fflush(stdout);
 */
-        total_handled++;
-        return;
-    }
-    //reaching here must mean total_handled == queue->max_size
-
+    total_handled++;
+    pthread_mutex_unlock(&lock);
     return;
 }
 
@@ -111,6 +109,7 @@ req popHeadWaiting(WaitingQueue queue, bool is_main_thread) {
     }
     if (!queue) {
         printf("popHeadWaiting: queue bad");
+        fflush(stdout);
         pthread_mutex_unlock(&lock);
         exit(1);
         //return r;
@@ -138,7 +137,10 @@ req popHeadWaiting(WaitingQueue queue, bool is_main_thread) {
 */
     free(temp);
     pthread_cond_signal(&is_full);
-    pthread_mutex_unlock(&lock);
+
+    if(!is_main_thread){
+        pthread_mutex_unlock(&lock);
+    }
     return data;
 }
 
@@ -176,6 +178,11 @@ req popIndexWaiting(WaitingQueue waiting_queue,int queue_index){
         (temp->next)->prev = temp->prev;
         (temp->prev)->next = temp->next;
     }
+    waiting_queue->curr_size--;
+    total_handled--; //!changed
+
+//    printf("popping because of random!\n");
+//    fflush(stdout);
     free(temp);
     return r;
 }

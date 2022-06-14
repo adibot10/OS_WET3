@@ -64,3 +64,17 @@ ThreadInfo findRequestNode(pthread_t thread_id) {
     //! if got here, something's not right!
     return NULL;
 }
+
+void printThreadsInfo(){
+    for(int i = 0; i < arr_size; i++){
+        if(!thread_arr[i]->request_node){
+            printf("Thread number %d is not handling a request\n", i);
+        }
+        else{
+            req r = thread_arr[i]->request_node->r;
+            printf("Thread number %d is handling request number %d\n", i, r.connfd);
+        }
+    }
+    printf("\n\n");
+    fflush(stdout);
+}

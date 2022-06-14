@@ -27,8 +27,6 @@ void addResponseStat(char* buf, stats* s)
 void requestError(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg, stats* s)
 {
    char buf[MAXLINE], body[MAXBUF];
-    printf("I was here, got error instead\n");
-    fflush(stdout);
    // Create the body of the error message
    sprintf(body, "<html><title>OS-HW3 Error</title>");
    sprintf(body, "%s<body bgcolor=""fffff"">\r\n", body);
@@ -52,6 +50,9 @@ void requestError(int fd, char *cause, char *errnum, char *shortmsg, char *longm
    // Write out the content
    Rio_writen(fd, body, strlen(body));
    printf("%s", body);
+    printf("\nthe request is %d\n", fd);
+    printf("the thread is %d\n\n", (int)pthread_self());
+    fflush(stdout);
 
 }
 
