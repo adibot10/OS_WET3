@@ -1,7 +1,7 @@
 //
 // request.c: Does the bulk of the work for the web server.
 // 
-
+#include "segel.h"
 #include "request.h"
 
 void addResponseStat(char* buf, stats* s)
@@ -132,19 +132,20 @@ void requestServeDynamic(int fd, char *filename, char *cgiargs, stats* s)
     sprintf(buf, "%sServer: OS-HW3 Web Server\r\n", buf);
     s->handler_thread_dynamic_req_count += 1;
     addResponseStat(buf, s);
-   sprintf(buf, "%s\r\n", buf);
+   //sprintf(buf, "%s\r\n", buf);
 
    Rio_writen(fd, buf, strlen(buf));
-
-   if (Fork() == 0) {
+    pid_t c_pid = Fork();
+   if (c_pid == 0) {
       /* Child process */
       Setenv("QUERY_STRING", cgiargs, 1);
       /* When the CGI process writes to stdout, it will instead go to the socket */
       Dup2(fd, STDOUT_FILENO);
       Execve(filename, emptylist, environ);
    }
-
-   Wait(NULL);
+    else {
+       WaitPid(c_pid, NULL, WUNTRACED);
+   }
 }
 
 
