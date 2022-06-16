@@ -1,0 +1,125 @@
+
+
+
+forgive me, but now popping from waiting
+
+
+
+forgive me, but now popping from waiting
+policy: block
+waiting for request num: 1
+got request after Accept with connfd of 4
+locked request num: 1
+going to push request 
+the fd of current request is: 4
+current size of WaitingQueue: 1
+current size of WorkingQueue: 0
+put request num 1 in queue. unlocking: 
+Thread number 0 is not handling a request
+Thread number 1 is not handling a request
+
+
+worker thread handled request again: 4
+just popped request number 4 from waiting 
+waiting for request num: 2
+
+
+pushing request number 4 in working
+
+got request after Accept with connfd of 5
+locked request num: 2
+going to push request 
+the fd of current request is: 5
+current size of WaitingQueue: 1
+current size of WorkingQueue: 1
+put request num 2 in queue. unlocking: 
+Thread number 0 is handling request number 4
+Thread number 1 is not handling a request
+
+
+worker thread handled request again: 5
+just popped request number 5 from waiting 
+waiting for request num: 3
+
+
+pushing request number 5 in working
+
+got request after Accept with connfd of 6
+locked request num: 3
+going to push request 
+the fd of current request is: 6
+current size of WaitingQueue: 1
+current size of WorkingQueue: 2
+put request num 3 in queue. unlocking: 
+Thread number 0 is handling request number 4
+Thread number 1 is handling request number 5
+
+
+worker thread handled request again: 6
+waiting for request num: 4
+got request after Accept with connfd of 7
+got to dangerous size with req num: 4
+finished pushing, total_handled == queue_size
+got into block while
+
+
+
+forgive me, but now popping from working
+just just sent signal to wake up main in waiting, popped request num 4
+
+
+
+forgive me, but now popping from waiting
+just popped request number 6 from waiting 
+
+
+pushing request number 6 in working
+
+got out of block while
+the fd of current request is: 7
+current size of WaitingQueue: 1
+current size of WorkingQueue: 2
+put request num 4 in queue. unlocking: 
+Thread number 0 is handling request number 6
+Thread number 1 is handling request number 5
+
+
+worker thread handled request again: 7
+waiting for request num: 5
+got request after Accept with connfd of 4
+got to dangerous size with req num: 5
+finished pushing, total_handled == queue_size
+got into block while
+
+
+
+forgive me, but now popping from working
+just just sent signal to wake up main in waiting, popped request num 5
+
+
+
+forgive me, but now popping from waiting
+just popped request number 7 from waiting 
+
+
+pushing request number 7 in working
+
+got out of block while
+the fd of current request is: 4
+current size of WaitingQueue: 1
+current size of WorkingQueue: 2
+put request num 5 in queue. unlocking: 
+Thread number 0 is handling request number 6
+Thread number 1 is handling request number 7
+
+
+worker thread handled request again: 4
+waiting for request num: 6
+got request after Accept with connfd of 5
+got to dangerous size with req num: 6
+finished pushing, total_handled == queue_size
+got into block while
+
+
+
+forgive me, but now popping from working

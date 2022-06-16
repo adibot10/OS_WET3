@@ -9,18 +9,8 @@ typedef struct working_queue_t *WorkingQueue;
 
 
 WorkingQueue workingQueueCreate(int thread_amount);
-
-
-
-//void workingPush(WorkingQueue queue, rio_t *request);
-//rio_t* workingSeeHead(WorkingQueue queue);
-//rio_t* workingPopHead(WorkingQueue queue);
-
 void workingPush(WorkingQueue queue, req r);
-req workingSeeHead(WorkingQueue queue);
 req workingPopHead(WorkingQueue queue);
-
-
 int workingGetCurrSize(WorkingQueue queue);
 int workingGetMaxSize(WorkingQueue queue);
 

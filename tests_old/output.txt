@@ -1,0 +1,189 @@
+GET /output.cgi HTTP/1.1
+GET /output.cgi HTTP/1.1
+GET /output.cgi HTTP/1.1
+
+
+GET /output.cgi HTTP/1.1
+GET /output.cgi HTTP/1.1
+GET /output.cgi HTTP/1.1
+
+
+GET /output.cgi HTTP/1.1
+GET /output.cgi HTTP/1.1
+GET /output.cgi HTTP/1.1
+
+
+GET /output.cgi HTTP/1.1
+GET /output.cgi HTTP/1.1
+GET /output.cgi HTTP/1.1
+
+
+GET /output.cgi HTTP/1.1
+GET /output.cgi HTTP/1.1
+GET /output.cgi HTTP/1.1
+
+
+GET /output.cgi HTTP/1.1
+GET /output.cgi HTTP/1.1
+GET /output.cgi HTTP/1.1
+
+
+GET /output.cgi HTTP/1.1
+GET /output.cgi HTTP/1.1
+GET /output.cgi HTTP/1.1
+
+
+GET /output.cgi HTTP/1.1
+GET /output.cgi HTTP/1.1
+GET /output.cgi HTTP/1.1
+
+
+GET /output.cgi HTTP/1.1
+GET /output.cgi HTTP/1.1
+GET /output.cgi HTTP/1.1
+
+
+GET /not_found HTTP/1.1
+I was here, got error instead
+HTTP/1.0 404 Not found
+Stat-Req-Arrival: 1655137002.681332
+Stat-Req-Dispatch: 0.18446744073709550817
+Stat-Thread-Id: 0
+Stat-Thread-Count: 1
+Stat-Thread-Static: 0
+Stat-Thread-Dynamic: 0
+Content-Type: text/html
+Content-Length: 158
+
+<html><title>OS-HW3 Error</title><body bgcolor=fffff>
+404: Not found
+<p>OS-HW3 Server could not find this file: ./public//not_found
+<hr>OS-HW3 Web Server
+
+
+GET /output.cgi HTTP/1.1
+
+
+GET /forbidden.cgi HTTP/1.1
+I was here, got error instead
+HTTP/1.0 404 Not found
+Stat-Req-Arrival: 1655137002.937893
+Stat-Req-Dispatch: 0.18446744073709550715
+Stat-Thread-Id: 0
+Stat-Thread-Count: 1
+Stat-Thread-Static: 0
+Stat-Thread-Dynamic: 0
+Content-Type: text/html
+Content-Length: 162
+
+<html><title>OS-HW3 Error</title><body bgcolor=fffff>
+404: Not found
+<p>OS-HW3 Server could not find this file: ./public//forbidden.cgi
+<hr>OS-HW3 Web Server
+
+
+POST /home.html HTTP/1.1
+I was here, got error instead
+HTTP/1.0 501 Not Implemented
+Stat-Req-Arrival: 1655137002.956576
+Stat-Req-Dispatch: 0.18446744073709550646
+Stat-Thread-Id: 0
+Stat-Thread-Count: 1
+Stat-Thread-Static: 0
+Stat-Thread-Dynamic: 0
+Content-Type: text/html
+Content-Length: 155
+
+<html><title>OS-HW3 Error</title><body bgcolor=fffff>
+501: Not Implemented
+<p>OS-HW3 Server does not implement this method: POST
+<hr>OS-HW3 Web Server
+
+
+GET /home.html HTTP/1.1
+
+
+Setting up test:
+	thread: 3
+	queue size: 7
+	policy: dh
+Requesting url: http://localhost:8080/output.cgi
+Requests succeeded: 3
+Requests failed: 18
+Setting up test:
+	thread: 3
+	queue size: 7
+	policy: dh
+Requesting url: http://localhost:8080/output.cgi
+Requests succeeded: 3
+Requests failed: 5
+Setting up test:
+	thread: 3
+	queue size: 16
+	policy: random
+Requesting url: http://localhost:8080/output.cgi
+Requests succeeded: 3
+Requests failed: 21
+Setting up test:
+	thread: 3
+	queue size: 16
+	policy: random
+Requesting url: http://localhost:8080/output.cgi
+Requests succeeded: 3
+Requests failed: 13
+Setting up test:
+	thread: 3
+	queue size: 16
+	policy: random
+Requesting url: http://localhost:8080/output.cgi
+Requests succeeded: 3
+Requests failed: 14
+Setting up test:
+	thread: 3
+	queue size: 7
+	policy: dt
+started bad test
+Requesting url: http://localhost:8080/output.cgi
+Requests succeeded: 3
+Requests failed: 18
+Setting up test:
+	thread: 3
+	queue size: 7
+	policy: dt
+Requesting url: http://localhost:8080/output.cgi
+Requests succeeded: 3
+Requests failed: 5
+Setting up test:
+	thread: 3
+	queue size: 80
+	policy: dt
+Requesting url: http://localhost:8080/output.cgi
+Requests succeeded: 3
+Requests failed: 77
+Setting up test:
+	thread: 3
+	queue size: 80
+	policy: dt
+Requesting url: http://localhost:8080/output.cgi
+Requests succeeded: 3
+Requests failed: 77
+Setting up test:
+	thread: 1
+	queue size: 1
+	policy: dt
+Setting up test:
+	thread: 1
+	queue size: 1
+	policy: dt
+Setting up test:
+	thread: 1
+	queue size: 1
+	policy: dt
+Setting up test:
+	thread: 1
+	queue size: 1
+	policy: dt
+Setting up test:
+	thread: 1
+	queue size: 1
+	policy: dt

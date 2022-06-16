@@ -16,14 +16,7 @@ typedef enum policy_t {
 } Policy;
 
 WaitingQueue queueCreateWaiting(int input_size, Policy policy);
-
-
-//void pushWaiting(WaitingQueue queue, rio_t *request);
-//rio_t* seeHeadWaiting(WaitingQueue queue);
-//rio_t* popHeadWaiting(WaitingQueue queue);
-
 void pushWaiting(WaitingQueue queue, req r);
-req seeHeadWaiting(WaitingQueue queue);
 req popHeadWaiting(WaitingQueue queue, bool is_main_thread);
 req popIndexWaiting(WaitingQueue waiting_queue,int queue_index);
 int getCurrSizeWaiting(WaitingQueue queue);
