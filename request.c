@@ -10,15 +10,31 @@ void addResponseStat(char* buf, stats* s)
     if (gettimeofday(&dispatch, NULL) == -1) {
         return;
     }
-    s->dispatch_interval.tv_sec = s->arrival_time.tv_sec - dispatch.tv_sec;
-    s->dispatch_interval.tv_usec = s->arrival_time.tv_usec - dispatch.tv_usec;
 
-    sprintf(buf, "%sStat-Req-Arrival: %lu.%06lu\r\n", buf,s->arrival_time.tv_sec, s->arrival_time.tv_usec);
-    sprintf(buf, "%sStat-Req-Dispatch: %lu.%06lu\r\n", buf, s->dispatch_interval.tv_sec, s->dispatch_interval.tv_usec);
-    sprintf(buf, "%sStat-Thread-Id: %d\r\n", buf, s->handler_thread_id);
-    sprintf(buf, "%sStat-Thread-Count: %d\r\n", buf, s->handler_thread_req_count);
-    sprintf(buf, "%sStat-Thread-Static: %d\r\n", buf, s->handler_thread_static_req_count);
-    sprintf(buf, "%sStat-Thread-Dynamic: %d\r\n", buf, s->handler_thread_dynamic_req_count);
+    if (s->arrival_time.tv_sec > dispatch.tv_sec) {
+
+        timersub(&(s->arrival_time), &dispatch, &(s->dispatch_interval));
+    }
+    else if (s->arrival_time.tv_sec < dispatch.tv_sec) {
+
+        timersub(&dispatch, &(s->arrival_time), &(s->dispatch_interval));
+    }
+    else  // left_operand.tv_sec == right_operand.tv_sec
+    {
+        if (s->arrival_time.tv_usec >= dispatch.tv_usec) {
+            timersub(&(s->arrival_time), &dispatch, &(s->dispatch_interval));
+        }
+        else {
+            timersub(&dispatch, &(s->arrival_time), &(s->dispatch_interval));
+        }
+    }
+
+    sprintf(buf, "%sStat-Req-Arrival:: %lu.%06lu\r\n", buf,s->arrival_time.tv_sec, s->arrival_time.tv_usec);
+    sprintf(buf, "%sStat-Req-Dispatch:: %lu.%06lu\r\n", buf, s->dispatch_interval.tv_sec, s->dispatch_interval.tv_usec);
+    sprintf(buf, "%sStat-Thread-Id:: %d\r\n", buf, s->handler_thread_id);
+    sprintf(buf, "%sStat-Thread-Count:: %d\r\n", buf, s->handler_thread_req_count);
+    sprintf(buf, "%sStat-Thread-Static:: %d\r\n", buf, s->handler_thread_static_req_count);
+    sprintf(buf, "%sStat-Thread-Dynamic:: %d\r\n", buf, s->handler_thread_dynamic_req_count);
 }
 
 
