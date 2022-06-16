@@ -88,8 +88,14 @@ void workingPush(WorkingQueue queue, req r) {
     printf("WorkingQueue: pushing request number %d\n", r.connfd); //**** remove
     fflush(stdout);
 */
+    fp = fopen("tests_with_prints", "a");
+    fprintf(fp, "about to unlock in pushWorking\n");
+    fclose(fp);
 
     pthread_mutex_unlock(&lock);
+    fp = fopen("tests_with_prints", "a");
+    fprintf(fp, "unlocked in pushWorking\n");
+    fclose(fp);
 
     //reaching here must mean queue->curr_size == queue->thread_size
 
@@ -106,11 +112,15 @@ req workingSeeHead(WorkingQueue queue) {
     return getNodeData(queue->head);
 }
 
-// ****
+
 req workingPopHead(WorkingQueue queue) {
+    FILE* fp = fopen("tests_with_prints", "a");
+    fprintf(fp, "at least got into workingPopHead\n");
+    fclose(fp);
+
     req data;
     pthread_mutex_lock(&lock);
-    FILE* fp = fopen("tests_with_prints", "a");
+    fp = fopen("tests_with_prints", "a");
     fprintf(fp, "\n\n\nforgive me, but now popping from working\n");
     fclose(fp);
 
