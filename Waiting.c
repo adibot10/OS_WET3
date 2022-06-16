@@ -58,7 +58,7 @@ void pushWaiting(WaitingQueue queue, req r) {
         return;
     }
 
-    pthread_mutex_lock(&lock);
+    //pthread_mutex_lock(&lock);
     if (queue->curr_size == 0) {
         queue->head = new_request;
         queue->tail = new_request;
@@ -66,7 +66,7 @@ void pushWaiting(WaitingQueue queue, req r) {
         total_handled++;
         int s = sizeOfQueue(queue);
         pthread_cond_signal(&is_empty);
-        pthread_mutex_unlock(&lock);
+        //pthread_mutex_unlock(&lock);
         /*
         printf("PUSH:the Real size of the WaitingQueue is %d and the curr size is %d\n", s, getCurrSizeWaiting(queue));
         fflush(stdout);
@@ -85,7 +85,7 @@ void pushWaiting(WaitingQueue queue, req r) {
     fflush(stdout);
 */
     total_handled++;
-    pthread_mutex_unlock(&lock);
+    //pthread_mutex_unlock(&lock);
     return;
 }
 
@@ -102,8 +102,7 @@ req seeHeadWaiting(WaitingQueue queue) {
 }
 
 req popHeadWaiting(WaitingQueue queue, bool is_main_thread) {
-    req r;
-    r.connfd = -1;
+
     if(!is_main_thread) {
         pthread_mutex_lock(&lock);
     }
@@ -116,6 +115,10 @@ req popHeadWaiting(WaitingQueue queue, bool is_main_thread) {
     }
     //printf("curr_size WaitingQueue: %d and thread id: %d\n", queue->curr_size, (int) pthread_self());
     //fflush(stdout);
+    FILE* fp = fopen("tests_with_prints", "a");
+    fprintf(fp, "\n\n\nforgive me, but now popping from waiting\n");
+    fclose(fp);
+
     while (0 == queue->curr_size) {
         pthread_cond_wait(&is_empty, &lock);
     }
@@ -130,13 +133,20 @@ req popHeadWaiting(WaitingQueue queue, bool is_main_thread) {
     }
     queue->curr_size--;
     req data = getNodeData(temp);
-    int s = sizeOfQueue(queue);
+    fp = fopen("tests_with_prints", "a");
+    fprintf(fp, "just popped request number %d from waiting \n", data.connfd);
+    fclose(fp);
+
+    //int s = sizeOfQueue(queue);
 /*
     printf("POP:the Real size of the WaitingQueue is %d and the curr size is %d\n", s, getCurrSizeWaiting(queue));
     fflush(stdout);
 */
     free(temp);
-    pthread_cond_signal(&is_full);
+
+    fp = fopen("tests_with_prints", "a");
+    fprintf(fp, "\nsorry again, going back to request printing\n\n\n");
+    fclose(fp);
 
     if(!is_main_thread){
         pthread_mutex_unlock(&lock);

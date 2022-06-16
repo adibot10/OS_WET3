@@ -49,6 +49,10 @@ void workingPush(WorkingQueue queue, req r) {
         return;
     }
 
+    FILE* fp = fopen("tests_with_prints", "a");
+    fprintf(fp, "\n\n\nforgive me, but now pushin in working\n");
+    fclose(fp);
+
 
     Node new_request = nodeCreate(r);
     if (new_request == NULL) {
@@ -58,6 +62,10 @@ void workingPush(WorkingQueue queue, req r) {
     pthread_t thread_id = pthread_self();
     ThreadInfo info = findRequestNode(thread_id);
     info->request_node = new_request;
+    fp = fopen("tests_with_prints", "a");
+    fprintf(fp, "pushing request number %d in working\n", ((info->request_node)->r).connfd);
+    fclose(fp);
+
 /*
     printf("PUSH-the Real size of the WorkingQueue is %d and the curr size is %d\n", printWorkingQueue(queue), workingGetCurrSize(queue));
     fflush(stdout);
@@ -99,18 +107,23 @@ req workingSeeHead(WorkingQueue queue) {
 }
 
 // ****
-//rio_t *workingPopHead(WorkingQueue queue)
 req workingPopHead(WorkingQueue queue) {
-    req r;
     req data;
-    r.connfd = -1;
     pthread_mutex_lock(&lock);
+    FILE* fp = fopen("tests_with_prints", "a");
+    fprintf(fp, "\n\n\nforgive me, but now popping from working\n");
+    fclose(fp);
+
 //    printf("\n\n");
 //    fflush(stdout);
 
     if (!queue) {
+        fp = fopen("tests_with_prints", "a");
+        fprintf(fp, "queue is null, apparently\n");
+        fclose(fp);
+
         pthread_mutex_unlock(&lock);
-        return r;
+        exit(1);
     }
 
 /*
@@ -119,11 +132,17 @@ req workingPopHead(WorkingQueue queue) {
 */
     //int s = printWorkingQueue(queue);
     //printf("POP-the Real size of the WorkingQueue is %d and the curr size is %d\n", s, queue->curr_size);
-    fflush(stdout);
+    //fflush(stdout);
+    fp = fopen("tests_with_prints", "a");
+    fprintf(fp, "checking got after !queue\n");
+    fclose(fp);
+
     if (queue->curr_size == 0) {
         printf("not good, size is 0 when popping WorkQueue\n");
         fflush(stdout);
-
+        fp = fopen("tests_with_prints", "a");
+        fprintf(fp, "zero items in queue, not good\n");
+        fclose(fp);
         //!not good if made it to here
         pthread_mutex_unlock(&lock);
         exit(1);
@@ -131,12 +150,19 @@ req workingPopHead(WorkingQueue queue) {
     pthread_t thread_id = pthread_self();
     ThreadInfo info = findRequestNode(thread_id);
     Node request_node = info->request_node;
+    fp = fopen("tests_with_prints", "a");
+    fprintf(fp, "found node to remove for queue\n");
+    fclose(fp);
 //    printf("\n\nreached working pop head\n");
 //    printf("popping req num: %d\n", (request_node->r).connfd);
 //    printf("reached working pop head\n\n\n");
 //    fflush(stdout);
 
     req for_printing = request_node->r;
+    fp = fopen("tests_with_prints", "a");
+    fprintf(fp, "just popping request number %d from working\n", for_printing.connfd);
+    fclose(fp);
+
     if (queue->curr_size == 1) {
 //        printf("size is 1 in WorkQueue, request number %d\n", for_printing.connfd);
 //        fflush(stdout);
@@ -176,6 +202,11 @@ req workingPopHead(WorkingQueue queue) {
     total_handled--;
     queue->curr_size--;
     //printf("total handled to go WaitingQueue: %d\n", total_handled);
+    pthread_cond_signal(&is_full);
+    fp = fopen("tests_with_prints", "a");
+    fprintf(fp, "just just sent signal to wake up main in waiting \n");
+    fclose(fp);
+
     pthread_mutex_unlock(&lock);
 
     return data;

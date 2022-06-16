@@ -65,14 +65,14 @@ ThreadInfo findRequestNode(pthread_t thread_id) {
     return NULL;
 }
 
-void printThreadsInfo(){
+void printThreadsInfo(FILE* fp){
     for(int i = 0; i < arr_size; i++){
         if(!thread_arr[i]->request_node){
-            printf("Thread number %d is not handling a request\n", i);
+            fprintf(fp, "Thread number %d is not handling a request\n", i);
         }
         else{
             req r = thread_arr[i]->request_node->r;
-            printf("Thread number %d is handling request number %d\n", i, r.connfd);
+            fprintf(fp, "Thread number %d is handling request number %d\n", i, r.connfd);
         }
     }
     printf("\n\n");
